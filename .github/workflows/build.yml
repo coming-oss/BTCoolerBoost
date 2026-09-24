@@ -18,28 +18,23 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.2'
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Accept licenses
         run: yes | sdkmanager --licenses || true
 
-      - name: Grant Gradle execute
-        run: chmod +x ./gradlew || true
-
       - name: Build debug APK
-        run: |
-          if [ -f ./gradlew ]; then
-            ./gradlew assembleDebug --no-daemon
-          else
-            gradle assembleDebug --no-daemon
-          fi
+        run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: cooler-boost-debug
           path: app/build/outputs/apk/debug/*.apk
-
-      - name: Clean build
-        run: ./gradlew clean || true
+          if-no-files-found: warn
